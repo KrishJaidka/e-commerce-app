@@ -1,0 +1,54 @@
+# Node dependencies
+**/node_modules/
+/backend/node_modules/
+/frontend/node_modules/
+
+# Build and dist outputs
+**/build/
+**/dist/
+
+# Environment variables
+**/.env
+**/.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+
+# Test & coverage
+coverage/
+*.lcov
+
+# MongoDB dump files
+dump/
+
+# Runtime files
+*.pid
+*.seed
+.pids
+
+# Lock files (optional: if you want to avoid platform lock conflicts)
+# package-lock.json
+# yarn.lock
+
+# React specific (if using CRA)
+*.tgz
+.cache/
+*.eslintcache
+
+# Next.js (if used)
+.next/
+out/
+
+# Settings files
+settings.json        # Ignores settings.json in root folder
+**/settings.json     # Ignores settings.json in all subdirectories
