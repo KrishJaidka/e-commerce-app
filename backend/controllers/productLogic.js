@@ -1,0 +1,305 @@
+const Product = require("../models/productSchema");
+const Seller = require("../models/sellerSchema");
+
+// Add new product (seller only)
+const addProduct = async (req, res) => {
+    try {
+        const sellerId = req.user.userId; // From JWT token
+        const { title, description, price, category, productImage } = req.body;
+
+        if (!title || !price) {
+            return res.status(400).json({
+                success: false,
+                message: "Title and price are required"
+            });
+        }
+
+        const productData = {
+            title,
+            description,
+            price,
+            category,
+            productImage,
+            seller: sellerId
+        };
+
+        const newProduct = new Product(productData);
+        await newProduct.save();
+
+        // Populate seller information in response
+        const populatedProduct = await Product.findById(newProduct._id)
+            .populate('seller', 'username brandName email');
+
+        return res.status(201).json({
+            success: true,
+            message: "Product created successfully",
+            data: populatedProduct
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to create product",
+            error: error.message
+        });
+    }
+};
+
+// Get single product by ID
+const getProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+
+        const product = await Product.findById(productId)
+            .populate('seller', 'username brandName email');
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: product
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to get product",
+            error: error.message
+        });
+    }
+};
+
+// Get all products with pagination and search
+const getProducts = async (req, res) => {
+    try {
+        const {
+            page = 1,
+            limit = 10,
+            search,
+            category,
+            minPrice,
+            maxPrice,
+            sortBy = 'createdAt',
+            order = 'desc'
+        } = req.query;
+
+        const skip = (page - 1) * limit;
+
+        // Build filter query
+        let query = {};
+
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        if (category && category !== 'all') {
+            query.category = category;
+        }
+
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = parseFloat(minPrice);
+            if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+        }
+
+        // Build sort object
+        const sortOrder = order === 'desc' ? -1 : 1;
+        const sortObj = { [sortBy]: sortOrder };
+
+        const products = await Product.find(query)
+            .populate('seller', 'username brandName email')
+            .skip(skip)
+            .limit(parseInt(limit))
+            .sort(sortObj);
+
+        const total = await Product.countDocuments(query);
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                products,
+                pagination: {
+                    currentPage: parseInt(page),
+                    totalPages: Math.ceil(total / limit),
+                    totalProducts: total,
+                    hasNext: page * limit < total,
+                    hasPrev: page > 1
+                },
+                filters: { search, category, minPrice, maxPrice, sortBy, order }
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to get products",
+            error: error.message
+        });
+    }
+};
+
+// Update product (seller can only update their own products)
+const updateProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const sellerId = req.user.userId; // From JWT token
+        const updateData = req.body;
+
+        // Remove fields that shouldn't be updated
+        delete updateData._id;
+        delete updateData.__v;
+        delete updateData.seller; // Prevent seller change
+        delete updateData.createdAt;
+
+        // Check if product exists and belongs to the seller
+        const existingProduct = await Product.findById(productId);
+
+        if (!existingProduct) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+
+        // Check ownership (only seller who created can update)
+        if (existingProduct.seller.toString() !== sellerId) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only update your own products"
+            });
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productId,
+            { $set: updateData },
+            { new: true, runValidators: true }
+        ).populate('seller', 'username brandName email');
+
+        return res.status(200).json({
+            success: true,
+            message: "Product updated successfully",
+            data: updatedProduct
+        });
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                success: false,
+                message: 'Validation failed',
+                errors: Object.values(error.errors).map(err => err.message)
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update product",
+            error: error.message
+        });
+    }
+};
+
+// Delete product (seller can only delete their own products)
+const deleteProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const sellerId = req.user.userId; // From JWT token
+
+        // Check if product exists and belongs to the seller
+        const existingProduct = await Product.findById(productId);
+
+        if (!existingProduct) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+
+        // Check ownership (only seller who created can delete)
+        if (existingProduct.seller.toString() !== sellerId) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only delete your own products"
+            });
+        }
+
+        await Product.findByIdAndDelete(productId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Product deleted successfully",
+            data: {
+                deletedProductId: productId
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to delete product",
+            error: error.message
+        });
+    }
+};
+
+// Get products by seller (for seller dashboard)
+const getSellerProducts = async (req, res) => {
+    try {
+        const sellerId = req.user.userId; // From JWT token
+        const { page = 1, limit = 10, search } = req.query;
+        const skip = (page - 1) * limit;
+
+        let query = { seller: sellerId };
+
+        if (search) {
+            query.$and = [
+                { seller: sellerId },
+                {
+                    $or: [
+                        { title: { $regex: search, $options: 'i' } },
+                        { description: { $regex: search, $options: 'i' } }
+                    ]
+                }
+            ];
+        }
+
+        const products = await Product.find(query)
+            .populate('seller', 'username brandName email')
+            .skip(skip)
+            .limit(parseInt(limit))
+            .sort({ createdAt: -1 });
+
+        const total = await Product.countDocuments(query);
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                products,
+                pagination: {
+                    currentPage: parseInt(page),
+                    totalPages: Math.ceil(total / limit),
+                    totalProducts: total,
+                    hasNext: page * limit < total,
+                    hasPrev: page > 1
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to get seller products",
+            error: error.message
+        });
+    }
+};
+
+module.exports = {
+    addProduct,
+    getProduct,
+    getProducts,
+    updateProduct,
+    deleteProduct,
+    getSellerProducts
+};

@@ -4,14 +4,7 @@ const bcrypt = require("bcrypt");
 const getUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const user = await User.findById(userId)
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
+    const user = await User.findById(userId).select('-password');
 
     return res.status(200).json({
       success: true,
@@ -78,9 +71,9 @@ const patchUser = async (req, res) => {
     const userId = req.params.id;
     const updateData = req.body;
 
-    // Remove sensitive fields that shouldn't be updated via patch
+    // blocking sensitive fields from updating via patch
     delete updateData.password;
-    delete updateData.email; // Email updates might need separate verification
+    delete updateData.email;
     delete updateData._id;
     delete updateData.__v;
 
@@ -90,20 +83,13 @@ const patchUser = async (req, res) => {
       { new: true, runValidators: true }
     ).select('-password');
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
     return res.status(200).json({
       success: true,
       message: 'User updated successfully',
       data: user
     });
   } catch (error) {
-    // Handle validation errors
+    // comes from auth middleware
     if (error.name === 'ValidationError') {
       return res.status(400).json({
         success: false,
@@ -152,16 +138,9 @@ const deleteUser = async (req, res) => {
 // Get current user profile (from token)
 const getUserProfile = async (req, res) => {
   try {
-    const userId = req.user.userId; // From JWT token
+    const userId = req.user.userId || req.query.userId; // From validated JWT token
 
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
+    const user = await User.findById(userId).select('-password');
 
     return res.status(200).json({
       success: true,

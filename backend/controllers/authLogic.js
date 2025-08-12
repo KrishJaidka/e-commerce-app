@@ -47,6 +47,14 @@ const signup = async (req, res) => {
             { expiresIn: "24h" }
         );
 
+        // Set secure HTTP-only cookie
+        res.cookie('authToken', token, {
+            httpOnly: true,        // Prevents XSS attacks
+            secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+            sameSite: 'strict',    // CSRF protection
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+        });
+
         const userResponse = newUser.toObject();
         delete userResponse.password;
         // remove password from response
@@ -57,7 +65,7 @@ const signup = async (req, res) => {
             data: {
                 user: userResponse,
                 role: role,
-                token: token,
+                // No token in response - it's in the cookie
             },
         });
     } catch (error) {
@@ -99,7 +107,7 @@ const login = async (req, res) => {
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: `${role} not found`,
+                message: `No account found with this email for role: ${role}`,
             });
         }
 
@@ -118,6 +126,14 @@ const login = async (req, res) => {
             { expiresIn: "24h" }
         );
 
+        // Set secure HTTP-only cookie
+        res.cookie('authToken', token, {
+            httpOnly: true,        // Prevents XSS attacks
+            secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+            sameSite: 'strict',    // CSRF protection
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+        });
+
         const userResponse = user.toObject();
         delete userResponse.password;
 
@@ -127,7 +143,7 @@ const login = async (req, res) => {
             data: {
                 user: userResponse,
                 role: role,
-                token: token,
+                // No token in response - it's in the cookie
             },
         });
     } catch (error) {
@@ -139,4 +155,177 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { signup, login };
+// Change password (requires current password)
+const changePassword = async (req, res) => {
+    const { role } = req.query;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({
+            success: false,
+            message: 'Current password and new password are required'
+        });
+    }
+
+    try {
+        let Model;
+        const userId = req.user.userId; // From JWT token
+
+        if (role === "seller") {
+            Model = Seller;
+        } else if (role === "user") {
+            Model = User;
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid role"
+            });
+        }
+
+        // Get user with password to verify current password
+        const user = await Model.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: `${role} not found`
+            });
+        }
+
+        // Verify current password
+        const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isCurrentPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                message: 'Current password is incorrect'
+            });
+        }
+
+        // Hash new password
+        const saltRounds = 10;
+        const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        // Update password
+        await Model.findByIdAndUpdate(userId, { password: hashedNewPassword });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Password changed successfully'
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to change password',
+            error: error.message
+        });
+    }
+};
+
+// Change email (with verification)
+const changeEmail = async (req, res) => {
+    const { role } = req.query;
+    const { newEmail, password } = req.body;
+
+    if (!newEmail || !password) {
+        return res.status(400).json({
+            success: false,
+            message: 'New email and password are required'
+        });
+    }
+
+    try {
+        let Model;
+        const userId = req.user.userId; // From JWT token
+
+        if (role === "seller") {
+            Model = Seller;
+        } else if (role === "user") {
+            Model = User;
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid role"
+            });
+        }
+
+        // Get user to verify password
+        const user = await Model.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: `${role} not found`
+            });
+        }
+
+        // Verify password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                message: 'Password is incorrect'
+            });
+        }
+
+        // Check if new email already exists in both collections
+        const existingUser = await User.findOne({ email: newEmail });
+        const existingSeller = await Seller.findOne({ email: newEmail });
+
+        if (existingUser || existingSeller) {
+            return res.status(409).json({
+                success: false,
+                message: 'Email already exists'
+            });
+        }
+
+        // Update email
+        const updatedUser = await Model.findByIdAndUpdate(
+            userId,
+            { email: newEmail },
+            { new: true }
+        );
+
+        // Remove password from response
+        const userResponse = updatedUser.toObject();
+        delete userResponse.password;
+
+        return res.status(200).json({
+            success: true,
+            message: 'Email changed successfully',
+            data: userResponse
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to change email',
+            error: error.message
+        });
+    }
+};
+
+// Logout - clear the cookie
+const logout = async (req, res) => {
+    try {
+        // Clear the auth cookie
+        res.clearCookie('authToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Logged out successfully'
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Logout failed',
+            error: error.message
+        });
+    }
+};
+
+module.exports = { signup, login, changePassword, changeEmail, logout };
