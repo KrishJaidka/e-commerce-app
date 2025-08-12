@@ -8,11 +8,11 @@ const sellerSchema = mongoose.Schema({
   },
   firstName: {
     type: String,
-    required: true,
+    required: false,
   },
   lastName: {
     type: String,
-    required: true,
+    required: false,
   },
   email: {
     type: String,
@@ -25,11 +25,15 @@ const sellerSchema = mongoose.Schema({
   },
   address: {
     type: String,
-    required: true,
+    required: false,
   },
   phone: {
     type: String,
-    required: true,
+    required: false,
+  },
+  birthDate: {
+    type: Date,
+    required: false
   },
   brandName: {
     type: String,

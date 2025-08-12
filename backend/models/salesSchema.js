@@ -29,6 +29,7 @@ const salesSchema = mongoose.Schema({
     type: String,
     enum: ["pending", "completed", "cancelled"],
     default: "pending",
+    required: false,
   },
   createdAt: {
     type: Date,

@@ -1,43 +1,185 @@
 const User = require("../models/userSchema");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 
-const createUser = async (req, res) => {
+const getUser = async (req, res) => {
   try {
-    const { username, email, password, ...rest } = req.body;
+    const userId = req.params.id;
+    const user = await User.findById(userId)
 
-    if (!username || !email || !password) {
-      return res
-        .status(400)
-        .json({ error: "Username, email, and password are required." });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).json({ error: "Email already in use." });
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user object
-    const user = new User({
-      username,
-      email,
-      password: hashedPassword,
-      ...rest,
+    return res.status(200).json({
+      success: true,
+      data: user
     });
-
-    // Validate and save user
-    await user.validate();
-    await user.save();
-
-    // Respond with created user (omit password)
-    const userResponse = user.toObject();
-    delete userResponse.password;
-
-    res.status(201).json(userResponse);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to get user',
+      error: error.message
+    });
   }
+};
+
+const getUsers = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search } = req.query;
+    const skip = (page - 1) * limit;
+
+    let query = {};
+    if (search) {
+      query = {
+        $or: [
+          { username: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } }
+        ]
+      };
+    }
+
+    const users = await User.find(query)
+      .select('-password')
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
+
+    const total = await User.countDocuments(query);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        users,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(total / limit),
+          totalUsers: total,
+          hasNext: page * limit < total,
+          hasPrev: page > 1
+        }
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to get users',
+      error: error.message
+    });
+  }
+};
+
+const patchUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const updateData = req.body;
+
+    // Remove sensitive fields that shouldn't be updated via patch
+    delete updateData.password;
+    delete updateData.email; // Email updates might need separate verification
+    delete updateData._id;
+    delete updateData.__v;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'User updated successfully',
+      data: user
+    });
+  } catch (error) {
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: Object.values(error.errors).map(err => err.message)
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update user',
+      error: error.message
+    });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'User deleted successfully',
+      data: {
+        deletedUserId: userId
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete user',
+      error: error.message
+    });
+  }
+};
+
+// Get current user profile (from token)
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId; // From JWT token
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to get user profile',
+      error: error.message
+    });
+  }
+};
+
+module.exports = {
+  getUser,
+  getUsers,
+  patchUser,
+  deleteUser,
+  getUserProfile
 };
