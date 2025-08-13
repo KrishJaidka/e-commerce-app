@@ -1,0 +1,88 @@
+/* SignupModal.css - modern modal styling */
+.qc-modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.qc-modal {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 2.5rem 2rem 2rem 2rem;
+  min-width: 340px;
+  max-width: 95vw;
+  position: relative;
+  animation: qc-modal-in 0.3s cubic-bezier(.4,2,.6,1) both;
+}
+@keyframes qc-modal-in {
+  from { opacity: 0; transform: translateY(40px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.qc-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.qc-modal-close:hover {
+  color: #f1641e;
+}
+.qc-signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: 1.2rem;
+}
+.qc-signup-form label {
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.qc-signup-form input {
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  margin-top: 0.2rem;
+}
+.qc-modal-submit {
+  background: #f1641e;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 0.7rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+.qc-modal-submit:hover {
+  background: #d4571c;
+}
+.qc-modal-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #666;
+  font-size: 1rem;
+}
+.qc-modal-footer a {
+  color: #f1641e;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 0.3rem;
+}
+.qc-modal-footer a:hover {
+  text-decoration: underline;
+}

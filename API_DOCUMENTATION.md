@@ -4,6 +4,7 @@
 
 ```
 http://localhost:3000/api
+https://e-commerce-app-fpo8.onrender.com/api
 ```
 
 ## Authentication

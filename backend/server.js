@@ -34,6 +34,10 @@ app.use("/api/sales", salesRoute);
 connectDB();
 cloudinaryConnect();
 
+app.get(("/"), (req, res) => {
+  res.send("QuickCart server is live!");
+})
+
 app.listen(PORT, () => {
   console.log(`Server up and running on port ${PORT}`);
 });
