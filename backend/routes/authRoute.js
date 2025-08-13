@@ -5,7 +5,7 @@ const { authenticateToken } = require('../middleware/auth');
 
 route.post('/signup', signup);
 route.post('/login', login);
-route.post('/logout', logout); // No auth needed - just clears cookie
+route.post('/logout', logout);
 route.patch('/change-password', authenticateToken, changePassword);
 route.patch('/change-email', authenticateToken, changeEmail);
 

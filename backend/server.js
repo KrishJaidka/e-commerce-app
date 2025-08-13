@@ -8,15 +8,16 @@ const cors = require("cors");
 
 const authRoute = require("./routes/authRoute");
 const userRoute = require("./routes/userRoute");
+const sellerRoute = require("./routes/sellerRoute");
 const productRoute = require("./routes/productRoute");
-// const salesRoute = require("./routes/salesRoutes")
+const salesRoute = require("./routes/salesRoute");
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(cookieParser()); // Add cookie parser middleware
+app.use(cookieParser());
 app.use(
   fileUpload({
     useTempFiles: true,
@@ -26,7 +27,9 @@ app.use(
 
 app.use("/api/auth", authRoute);
 app.use("/api/user", userRoute);
+app.use("/api/seller", sellerRoute);
 app.use("/api/product", productRoute);
+app.use("/api/sales", salesRoute);
 
 connectDB();
 cloudinaryConnect();
@@ -34,7 +37,3 @@ cloudinaryConnect();
 app.listen(PORT, () => {
   console.log(`Server up and running on port ${PORT}`);
 });
-
-//add reviews to products
-//payment schema
-//support-tickets schema

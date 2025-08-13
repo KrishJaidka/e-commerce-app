@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken, requireRole, checkOwnership } = require('../middleware/auth');
+const { authenticateToken, requireRole, checkProductOwnership } = require('../middleware/auth');
 const {
     addProduct,
     getProduct,
@@ -10,16 +10,14 @@ const {
     getSellerProducts
 } = require('../controllers/productLogic');
 
-// Public routes (no authentication required)
-router.get('/', getProducts);           // Browse all products with filters
-router.get('/:id', getProduct);         // View single product details
+// Public routes
+router.get('/', getProducts);
+router.get('/:id', getProduct);
 
-// Seller-only routes (authentication + role check required)
+// Seller-only routes  
 router.post('/', authenticateToken, requireRole(['seller']), addProduct);
-router.patch('/:id', authenticateToken, requireRole(['seller']), updateProduct);
-router.delete('/:id', authenticateToken, requireRole(['seller']), deleteProduct);
-
-// Seller dashboard route
+router.patch('/:id', authenticateToken, requireRole(['seller']), checkProductOwnership, updateProduct);
+router.delete('/:id', authenticateToken, requireRole(['seller']), checkProductOwnership, deleteProduct);
 router.get('/seller/my-products', authenticateToken, requireRole(['seller']), getSellerProducts);
 
 module.exports = router;

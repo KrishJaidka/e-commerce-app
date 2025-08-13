@@ -9,8 +9,12 @@ const signup = async (req, res) => {
 
     try {
         let Model;
-
-        if (role === "seller") {
+        // Allow admin signup only for the configured admin email
+        if (userData.email === "admin@email.com") {
+            Model = User;
+            // Force role to admin
+            userData.role = "admin";
+        } else if (role === "seller") {
             Model = Seller;
         } else if (role === "user") {
             Model = User;
@@ -41,23 +45,24 @@ const signup = async (req, res) => {
         const newUser = new Model(userData);
         await newUser.save();
 
+        // Set role for JWT: admin if admin email, else from param
+        const jwtRole = userData.email === "admin@email.com" ? "admin" : role;
         const token = jwt.sign(
-            { userId: newUser._id, role: role },
+            { userId: newUser._id, role: jwtRole },
             process.env.JWT_SECRET,
             { expiresIn: "24h" }
         );
 
-        // Set secure HTTP-only cookie
+        // Set secure cookie for authentication
         res.cookie('authToken', token, {
-            httpOnly: true,        // Prevents XSS attacks
-            secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-            sameSite: 'strict',    // CSRF protection
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000
         });
 
         const userResponse = newUser.toObject();
         delete userResponse.password;
-        // remove password from response
 
         return res.status(200).json({
             success: true,
@@ -65,7 +70,6 @@ const signup = async (req, res) => {
             data: {
                 user: userResponse,
                 role: role,
-                // No token in response - it's in the cookie
             },
         });
     } catch (error) {
@@ -90,11 +94,21 @@ const login = async (req, res) => {
 
     try {
         let Model;
+        let user;
+        let jwtRole = role;
 
-        if (role === "seller") {
+        // Always check for admin email in User collection, regardless of role param
+        if (email === "admin@email.com") {
+            user = await User.findOne({ email: email });
+            jwtRole = "admin";
+        } else if (role === "seller") {
             Model = Seller;
+            user = await Model.findOne({ email: email });
+            jwtRole = "seller";
         } else if (role === "user") {
             Model = User;
+            user = await Model.findOne({ email: email });
+            jwtRole = "user";
         } else {
             return res.status(400).json({
                 success: false,
@@ -102,12 +116,10 @@ const login = async (req, res) => {
             });
         }
 
-        const user = await Model.findOne({ email: email });
-
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: `No account found with this email for role: ${role}`,
+                message: `No account found with this email for role: ${jwtRole}`,
             });
         }
 
@@ -121,17 +133,17 @@ const login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { userId: user._id, role: role },
+            { userId: user._id, role: jwtRole },
             process.env.JWT_SECRET,
             { expiresIn: "24h" }
         );
 
-        // Set secure HTTP-only cookie
+        // Set secure cookie for authentication
         res.cookie('authToken', token, {
-            httpOnly: true,        // Prevents XSS attacks
-            secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-            sameSite: 'strict',    // CSRF protection
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000
         });
 
         const userResponse = user.toObject();
@@ -139,11 +151,10 @@ const login = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: `${role} logged in successfully`,
+            message: `${jwtRole} logged in successfully`,
             data: {
                 user: userResponse,
-                role: role,
-                // No token in response - it's in the cookie
+                role: jwtRole,
             },
         });
     } catch (error) {
@@ -155,7 +166,7 @@ const login = async (req, res) => {
     }
 };
 
-// Change password (requires current password)
+// Requires current password verification
 const changePassword = async (req, res) => {
     const { role } = req.query;
     const { currentPassword, newPassword } = req.body;
@@ -169,7 +180,7 @@ const changePassword = async (req, res) => {
 
     try {
         let Model;
-        const userId = req.user.userId; // From JWT token
+        const userId = req.user.userId;
 
         if (role === "seller") {
             Model = Seller;
@@ -182,7 +193,6 @@ const changePassword = async (req, res) => {
             });
         }
 
-        // Get user with password to verify current password
         const user = await Model.findById(userId);
 
         if (!user) {
@@ -192,7 +202,6 @@ const changePassword = async (req, res) => {
             });
         }
 
-        // Verify current password
         const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
 
         if (!isCurrentPasswordValid) {
@@ -202,11 +211,9 @@ const changePassword = async (req, res) => {
             });
         }
 
-        // Hash new password
         const saltRounds = 10;
         const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-        // Update password
         await Model.findByIdAndUpdate(userId, { password: hashedNewPassword });
 
         return res.status(200).json({
@@ -222,7 +229,7 @@ const changePassword = async (req, res) => {
     }
 };
 
-// Change email (with verification)
+// Cross-collection email verification required
 const changeEmail = async (req, res) => {
     const { role } = req.query;
     const { newEmail, password } = req.body;
@@ -236,7 +243,7 @@ const changeEmail = async (req, res) => {
 
     try {
         let Model;
-        const userId = req.user.userId; // From JWT token
+        const userId = req.user.userId;
 
         if (role === "seller") {
             Model = Seller;
@@ -249,7 +256,6 @@ const changeEmail = async (req, res) => {
             });
         }
 
-        // Get user to verify password
         const user = await Model.findById(userId);
 
         if (!user) {
@@ -259,7 +265,6 @@ const changeEmail = async (req, res) => {
             });
         }
 
-        // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
@@ -269,7 +274,7 @@ const changeEmail = async (req, res) => {
             });
         }
 
-        // Check if new email already exists in both collections
+        // Prevent cross-collection email duplication
         const existingUser = await User.findOne({ email: newEmail });
         const existingSeller = await Seller.findOne({ email: newEmail });
 
@@ -280,14 +285,12 @@ const changeEmail = async (req, res) => {
             });
         }
 
-        // Update email
         const updatedUser = await Model.findByIdAndUpdate(
             userId,
             { email: newEmail },
             { new: true }
         );
 
-        // Remove password from response
         const userResponse = updatedUser.toObject();
         delete userResponse.password;
 
@@ -305,10 +308,9 @@ const changeEmail = async (req, res) => {
     }
 };
 
-// Logout - clear the cookie
 const logout = async (req, res) => {
     try {
-        // Clear the auth cookie
+        // Clear authentication cookie
         res.clearCookie('authToken', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
