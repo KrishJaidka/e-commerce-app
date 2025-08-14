@@ -12,8 +12,13 @@ export const useProducts = (initialParams = {}) => {
     const fetchProducts = useCallback(async (params = {}, isLoadMore = false) => {
         if (isLoadMore) {
             setLoadingMore(true);
+            console.log('🔄 Loading more products...', {
+                currentCount: products.length,
+                params
+            });
         } else {
             setLoading(true);
+            console.log('🆕 Fetching new products...', { params });
             // Don't clear products immediately to prevent flickering
         }
         setError(null);
@@ -22,8 +27,28 @@ export const useProducts = (initialParams = {}) => {
             const response = await productService.getProducts(params);
 
             if (response.success) {
+                console.log('📦 API Response:', {
+                    isLoadMore,
+                    newProducts: response.data.products.length,
+                    productIds: response.data.products.map(p => p._id),
+                    pagination: response.data.pagination
+                });
+
                 if (isLoadMore) {
-                    setProducts(prev => [...prev, ...response.data.products]);
+                    setProducts(prev => {
+                        const newProducts = response.data.products;
+                        const existingIds = new Set(prev.map(p => p._id));
+                        const uniqueNewProducts = newProducts.filter(p => !existingIds.has(p._id));
+
+                        console.log('🔍 Duplicate check:', {
+                            existingCount: prev.length,
+                            newProductsCount: newProducts.length,
+                            uniqueNewProductsCount: uniqueNewProducts.length,
+                            duplicateIds: newProducts.filter(p => existingIds.has(p._id)).map(p => p._id)
+                        });
+
+                        return [...prev, ...uniqueNewProducts];
+                    });
                 } else {
                     setProducts(response.data.products);
                 }
@@ -47,7 +72,7 @@ export const useProducts = (initialParams = {}) => {
                 setLoading(false);
             }
         }
-    }, []);
+    }, [products]);
 
     const searchProducts = useCallback(async (searchTerm, additionalFilters = {}) => {
         const searchParams = {
