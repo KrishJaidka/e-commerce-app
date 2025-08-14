@@ -13,10 +13,11 @@ const productRoute = require("./routes/productRoute");
 const salesRoute = require("./routes/salesRoute");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+// Remove CORS restrictions - allow all origins
 app.use(cors({
-  origin: 'http://localhost:5174', // Your frontend URL
+  origin: true, // Allow all origins
   credentials: true
 }));
 app.use(express.json());
