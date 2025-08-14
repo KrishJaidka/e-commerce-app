@@ -330,4 +330,37 @@ const logout = async (req, res) => {
     }
 };
 
-module.exports = { signup, login, changePassword, changeEmail, logout };
+// Get current authenticated user
+const getCurrentUser = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const role = req.user.role;
+
+        let user;
+        if (role === 'seller') {
+            user = await Seller.findById(userId).select('-password');
+        } else {
+            user = await User.findById(userId).select('-password');
+        }
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: { ...user.toObject(), role }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to get user information',
+            error: error.message
+        });
+    }
+};
+
+module.exports = { signup, login, changePassword, changeEmail, logout, getCurrentUser };

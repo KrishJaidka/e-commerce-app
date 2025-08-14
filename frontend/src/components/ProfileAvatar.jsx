@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import SellerDashboard from './SellerDashboard';
 import './ProfileAvatar.css';
 
 const ProfileAvatar = ({ user, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSellerDashboard, setShowSellerDashboard] = useState(false);
   const menuRef = useRef(null);
 
   // Get initials from user data
@@ -56,6 +58,11 @@ const ProfileAvatar = ({ user, onLogout }) => {
     setShowProfileModal(true);
   };
 
+  const handleSellerDashboardClick = () => {
+    setIsMenuOpen(false);
+    setShowSellerDashboard(true);
+  };
+
   const handleLogoutClick = () => {
     setIsMenuOpen(false);
     onLogout();
@@ -63,14 +70,19 @@ const ProfileAvatar = ({ user, onLogout }) => {
 
   return (
     <div className="profile-avatar-container" ref={menuRef}>
-      {/* Avatar Circle */}
-      <button
-        className="profile-avatar"
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        aria-label="Profile menu"
-      >
-        <span className="profile-initials">{getInitials()}</span>
-      </button>
+      {/* User Name and Avatar */}
+      <div className="profile-navbar-section">
+        <span className="profile-navbar-name">
+          Hi, {user.firstName || user.username || 'User'}
+        </span>
+        <button
+          className="profile-avatar"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Profile menu"
+        >
+          <span className="profile-initials">{getInitials()}</span>
+        </button>
+      </div>
 
       {/* Dropdown Menu */}
       {isMenuOpen && (
@@ -89,6 +101,15 @@ const ProfileAvatar = ({ user, onLogout }) => {
             <span className="menu-icon">👤</span>
             Profile
           </button>
+          {user.role === 'seller' && (
+            <button
+              className="profile-menu-item"
+              onClick={handleSellerDashboardClick}
+            >
+              <span className="menu-icon">🏪</span>
+              My Store
+            </button>
+          )}
           <button
             className="profile-menu-item logout"
             onClick={handleLogoutClick}
@@ -104,6 +125,13 @@ const ProfileAvatar = ({ user, onLogout }) => {
         <ProfileModal
           user={user}
           onClose={() => setShowProfileModal(false)}
+        />
+      )}
+
+      {/* Seller Dashboard */}
+      {showSellerDashboard && (
+        <SellerDashboard
+          onClose={() => setShowSellerDashboard(false)}
         />
       )}
     </div>

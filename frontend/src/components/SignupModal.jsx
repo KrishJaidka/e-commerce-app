@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { authService } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 import './SignupModal.css';
 
 const AuthModal = ({ onClose }) => {
   const [mode, setMode] = useState('signup'); // 'signup' or 'login'
   const [accountType, setAccountType] = useState('user'); // 'user' or 'seller'
+  const { login, signup } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -41,20 +42,18 @@ const AuthModal = ({ onClose }) => {
           password: formData.password,
           ...(accountType === 'seller' && { brandName: formData.brandName })
         };
-        result = await authService.signup(userData, accountType);
+        result = await signup(userData, accountType);
       } else {
         const credentials = {
           email: formData.email,
           password: formData.password
         };
-        result = await authService.login(credentials, accountType);
+        result = await login(credentials, accountType);
       }
 
-      // Success - close modal and potentially redirect or update app state
+      // Success - close modal (AuthContext will handle state updates)
       console.log(`${mode} successful:`, result);
       onClose();
-      // Refresh page to update auth state
-      window.location.reload();
     } catch (error) {
       setError(error.message);
     } finally {

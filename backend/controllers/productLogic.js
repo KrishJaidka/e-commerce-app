@@ -1,16 +1,45 @@
 const Product = require("../models/productSchema");
 const Seller = require("../models/sellerSchema");
+const cloudinary = require('cloudinary').v2;
+
+const uploadImageToCloudinary = async (file) => {
+    try {
+        const result = await cloudinary.uploader.upload(file.tempFilePath, {
+            folder: "product-images",
+            resource_type: "image",
+            quality: "auto",
+            fetch_format: "auto"
+        });
+        return result.secure_url;
+    } catch (error) {
+        throw new Error('Failed to upload image to Cloudinary');
+    }
+};
 
 const addProduct = async (req, res) => {
     try {
         const sellerId = req.user.userId;
-        const { title, description, price, category, productImage } = req.body;
+        const { title, description, price, category } = req.body;
 
         if (!title || !price) {
             return res.status(400).json({
                 success: false,
                 message: "Title and price are required"
             });
+        }
+
+        let productImage = '';
+        
+        // Handle image upload
+        if (req.files && req.files.productImage) {
+            try {
+                productImage = await uploadImageToCloudinary(req.files.productImage);
+            } catch (error) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Failed to upload product image"
+                });
+            }
         }
 
         const productData = {
@@ -149,7 +178,19 @@ const getProducts = async (req, res) => {
 const updateProduct = async (req, res) => {
     try {
         const productId = req.params.id;
-        const updateData = req.body;
+        const updateData = { ...req.body };
+
+        // Handle image upload if present
+        if (req.files && req.files.productImage) {
+            try {
+                updateData.productImage = await uploadImageToCloudinary(req.files.productImage);
+            } catch (error) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Failed to upload product image"
+                });
+            }
+        }
 
         // Prevent updating protected fields
         delete updateData._id;

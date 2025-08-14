@@ -173,6 +173,33 @@ export const authService = {
             console.error('Email change error:', error);
             throw error;
         }
+    },
+
+    // Get current user info
+    getCurrentUser: async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (response.status === 401) {
+                // User is not authenticated
+                return null;
+            }
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to get current user');
+            }
+
+            return data.data || data;
+        } catch (error) {
+            console.error('Get current user error:', error);
+            // Return null instead of throwing error to handle unauthenticated state gracefully
+            return null;
+        }
     }
 };
 

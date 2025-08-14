@@ -171,11 +171,34 @@ const getSellerStats = async (req, res) => {
     }
 };
 
+// Get seller's own products
+const getSellerProducts = async (req, res) => {
+    try {
+        const sellerId = req.user.userId; // From auth middleware
+        
+        const products = await Product.find({ seller: sellerId })
+            .populate('seller', 'username brandName email')
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            data: products
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to get seller products',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getSeller,
     getSellers,
     patchSeller,
     deleteSeller,
     getSellerProfile,
-    getSellerStats
+    getSellerStats,
+    getSellerProducts
 };
