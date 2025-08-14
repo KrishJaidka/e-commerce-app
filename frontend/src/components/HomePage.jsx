@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import SignupModal from './SignupModal';
+import AuthModal from './SignupModal';
 import ProductGrid from './ProductGrid';
 import { useProducts } from '../hooks/useProducts';
 import './HomePage.css';
 
 const HomePage = () => {
-  const [showSignup, setShowSignup] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
   
   // Fetch products with initial pagination
   const {
@@ -54,7 +54,7 @@ const HomePage = () => {
           <a href="#">Shop</a>
           <a href="#">Categories</a>
           <a href="#">Cart</a>
-          <button className="qc-signup-btn" onClick={() => setShowSignup(true)}>
+          <button className="qc-signup-btn" onClick={() => setShowAuth(true)}>
             Sign up
           </button>
         </nav>
@@ -63,7 +63,7 @@ const HomePage = () => {
       <section className="qc-hero">
         <h1>Discover unique handmade & vintage goods</h1>
         <p>Shop millions of one-of-a-kind items from creative sellers around the world.</p>
-        <button className="qc-cta" onClick={() => setShowSignup(true)}>
+        <button className="qc-cta" onClick={() => setShowAuth(true)}>
           Get Started
         </button>
       </section>
@@ -113,7 +113,7 @@ const HomePage = () => {
         />
       </section>
       
-      {showSignup && <SignupModal onClose={() => setShowSignup(false)} />}
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </div>
   );
 };
