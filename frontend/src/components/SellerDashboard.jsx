@@ -200,7 +200,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
     title: product?.title || '',
     description: product?.description || '',
     price: product?.price || '',
-    category: product?.category || 'electronics'
+    category: product?.category || ''
   });
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(product?.productImage || '');
@@ -329,11 +329,24 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
                 onChange={handleChange}
                 required
               >
-                <option value="electronics">Electronics</option>
-                <option value="home">Home</option>
-                <option value="beauty">Beauty</option>
-                <option value="grocery">Grocery</option>
-                <option value="lighting">Lighting</option>
+                <option value="">Select a category</option>
+                <option value="accessories">Accessories</option>
+                <option value="art-and-collectibles">Art & Collectibles</option>
+                <option value="baby">Baby</option>
+                <option value="bags-and-purses">Bags & Purses</option>
+                <option value="bath-and-beauty">Bath & Beauty</option>
+                <option value="books-films-music">Books, Films & Music</option>
+                <option value="clothing">Clothing</option>
+                <option value="craft-supplies-tools">Craft Supplies & Tools</option>
+                <option value="electronics-accessories">Electronics & Accessories</option>
+                <option value="gifts">Gifts</option>
+                <option value="home-living">Home & Living</option>
+                <option value="jewellery">Jewellery</option>
+                <option value="paper-party-supplies">Paper & Party Supplies</option>
+                <option value="pet-supplies">Pet Supplies</option>
+                <option value="shoes">Shoes</option>
+                <option value="toys-games">Toys & Games</option>
+                <option value="weddings">Weddings</option>
               </select>
             </div>
           </div>

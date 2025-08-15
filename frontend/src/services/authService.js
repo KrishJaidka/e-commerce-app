@@ -178,25 +178,32 @@ export const authService = {
     // Get current user info
     getCurrentUser: async () => {
         try {
+            console.log('🔍 authService: Getting current user...');
             const response = await fetch(`${API_BASE_URL}/auth/me`, {
                 method: 'GET',
                 credentials: 'include'
             });
 
+            console.log('🔍 authService: getCurrentUser response status:', response.status);
+
             if (response.status === 401) {
                 // User is not authenticated
+                console.log('🔍 authService: User not authenticated (401)');
                 return null;
             }
 
             const data = await response.json();
+            console.log('🔍 authService: getCurrentUser response data:', data);
 
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to get current user');
             }
 
-            return data.data || data;
+            const userData = data.data || data;
+            console.log('🔍 authService: Returning user data:', userData);
+            return userData;
         } catch (error) {
-            console.error('Get current user error:', error);
+            console.error('🔍 authService: Get current user error:', error);
             // Return null instead of throwing error to handle unauthenticated state gracefully
             return null;
         }

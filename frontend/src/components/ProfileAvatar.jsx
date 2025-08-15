@@ -167,8 +167,25 @@ const ProfileModal = ({ user, onClose }) => {
     setSuccess('');
 
     try {
-      // Call the profile update API
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/user/profile`, {
+      // Get the user ID (handle both _id and id fields)
+      const userId = user._id || user.id;
+      
+      if (!userId) {
+        setError('User ID not found. Please try logging in again.');
+        return;
+      }
+
+      console.log('🔍 Profile Update: User ID:', userId, 'Role:', user.role);
+      
+      // Call the profile update API - use the correct endpoint based on user role
+      const endpoint = user.role === 'seller' 
+        ? `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/seller/${userId}`
+        : `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/user/${userId}`;
+        
+      console.log('🔍 Profile Update: Endpoint:', endpoint);
+      console.log('🔍 Profile Update: Form data:', formData);
+        
+      const response = await fetch(endpoint, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -178,6 +195,9 @@ const ProfileModal = ({ user, onClose }) => {
       });
 
       const data = await response.json();
+      
+      console.log('🔍 Profile Update: Response status:', response.status);
+      console.log('🔍 Profile Update: Response data:', data);
 
       if (response.ok && data.success) {
         setSuccess('Profile updated successfully!');
@@ -185,9 +205,12 @@ const ProfileModal = ({ user, onClose }) => {
           window.location.reload(); // Refresh to update the profile data
         }, 1500);
       } else {
-        setError(data.message || 'Failed to update profile');
+        const errorMessage = data.message || `HTTP ${response.status}: Failed to update profile`;
+        console.error('🔍 Profile Update: Error:', errorMessage);
+        setError(errorMessage);
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('🔍 Profile Update: Network/Parse error:', error);
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);

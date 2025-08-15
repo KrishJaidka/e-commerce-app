@@ -7,7 +7,10 @@ const ProductGrid = ({
   loadingMore = false,
   error = null,
   pagination = null,
-  onLoadMore = null 
+  onLoadMore = null,
+  onToggleFavorite = null,
+  isFavorite = null,
+  onAddToCart = null
 }) => {
   if (loading && products.length === 0) {
     return (
@@ -46,7 +49,10 @@ const ProductGrid = ({
         {products.map((product) => (
           <ProductCard 
             key={product._id} 
-            product={product} 
+            product={product}
+            onToggleFavorite={onToggleFavorite}
+            isFavorite={isFavorite ? isFavorite(product._id) : false}
+            onAddToCart={onAddToCart}
           />
         ))}
       </div>

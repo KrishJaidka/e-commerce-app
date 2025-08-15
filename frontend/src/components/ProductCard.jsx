@@ -1,6 +1,7 @@
 import React from 'react';
+import { Heart } from 'lucide-react';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onToggleFavorite, isFavorite, onAddToCart }) => {
   const {
     _id,
     title,
@@ -20,6 +21,13 @@ const ProductCard = ({ product }) => {
   return (
     <div className="qc-product-card">
       <div className="qc-product-image">
+        <button 
+          className={`qc-favorite-btn ${isFavorite ? 'active' : ''}`}
+          onClick={() => onToggleFavorite(_id)}
+          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
+        </button>
         {productImage ? (
           <img 
             src={productImage} 
@@ -60,7 +68,10 @@ const ProductCard = ({ product }) => {
           <button className="qc-btn qc-btn-primary">
             View Details
           </button>
-          <button className="qc-btn qc-btn-secondary">
+          <button 
+            className="qc-btn qc-btn-secondary"
+            onClick={() => onAddToCart && onAddToCart(product)}
+          >
             Add to Cart
           </button>
         </div>

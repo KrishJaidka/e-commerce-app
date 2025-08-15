@@ -29,7 +29,7 @@ const addProduct = async (req, res) => {
         }
 
         let productImage = '';
-        
+
         // Handle image upload
         if (req.files && req.files.productImage) {
             try {

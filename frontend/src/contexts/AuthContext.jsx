@@ -17,36 +17,47 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      console.log('🔍 AuthContext: Checking auth status...');
       setLoading(true);
       const currentUser = await authService.getCurrentUser();
+      console.log('🔍 AuthContext: checkAuthStatus - currentUser:', currentUser);
       if (currentUser) {
         setUser(currentUser);
         setIsAuthenticated(true);
+        console.log('🔍 AuthContext: User authenticated');
       } else {
         setUser(null);
         setIsAuthenticated(false);
+        console.log('🔍 AuthContext: User not authenticated');
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error('🔍 AuthContext: Auth check failed:', error);
       setUser(null);
       setIsAuthenticated(false);
     } finally {
       setLoading(false);
+      console.log('🔍 AuthContext: Loading set to false');
     }
   };
 
   const login = async (credentials, role) => {
     try {
+      console.log('🔍 AuthContext: Starting login...');
       const result = await authService.login(credentials, role);
+      console.log('🔍 AuthContext: Login result:', result);
       if (result.success) {
         // Get the updated user info after login
+        console.log('🔍 AuthContext: Getting current user...');
         const currentUser = await authService.getCurrentUser();
+        console.log('🔍 AuthContext: Current user data:', currentUser);
         setUser(currentUser);
         setIsAuthenticated(true);
+        console.log('🔍 AuthContext: State updated - isAuthenticated: true');
         return result;
       }
       throw new Error(result.message || 'Login failed');
     } catch (error) {
+      console.error('🔍 AuthContext: Login error:', error);
       throw error;
     }
   };

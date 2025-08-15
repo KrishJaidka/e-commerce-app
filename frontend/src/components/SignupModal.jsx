@@ -53,7 +53,11 @@ const AuthModal = ({ onClose }) => {
 
       // Success - close modal (AuthContext will handle state updates)
       console.log(`${mode} successful:`, result);
-      onClose();
+      
+      // Small delay to allow auth state to update before closing modal
+      setTimeout(() => {
+        onClose();
+      }, 100);
     } catch (error) {
       setError(error.message);
     } finally {

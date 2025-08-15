@@ -175,7 +175,7 @@ const getSellerStats = async (req, res) => {
 const getSellerProducts = async (req, res) => {
     try {
         const sellerId = req.user.userId; // From auth middleware
-        
+
         const products = await Product.find({ seller: sellerId })
             .populate('seller', 'username brandName email')
             .sort({ createdAt: -1 });

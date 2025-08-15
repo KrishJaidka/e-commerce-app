@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- Shopping bag icon -->
+  <path d="M30 15 L30 12 C30 8 26 4 22 4 L18 4 C14 4 10 8 10 12 L10 15 L5 15 C3 15 2 16 2 18 L4 45 C4 47 6 49 8 49 L32 49 C34 49 36 47 36 45 L38 18 C38 16 37 15 35 15 Z M14 12 C14 10 16 8 18 8 L22 8 C24 8 26 10 26 12 L26 15 L14 15 Z" fill="#F56500"/>
+  
+  <!-- QuickCart text -->
+  <text x="50" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="600" fill="#F56500">QuickCart</text>
+</svg>
