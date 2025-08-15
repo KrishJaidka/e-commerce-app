@@ -54,13 +54,26 @@
   --shadow-md: 0 4px 12px rgba(34, 34, 34, 0.15);
   --shadow-lg: 0 8px 32px rgba(34, 34, 34, 0.1);
   
-  /* Dark Mode Colors */
-  --dark-bg-primary: #1a1a1a;
-  --dark-bg-secondary: #2d2d2d;
-  --dark-bg-tertiary: #3a3a3a;
+  /* Dark Mode Colors - Enhanced */
+  --dark-bg-primary: #0f0f0f;
+  --dark-bg-secondary: #1a1a1a;
+  --dark-bg-tertiary: #2a2a2a;
+  --dark-bg-quaternary: #3a3a3a;
   --dark-text-primary: #ffffff;
-  --dark-text-secondary: #b0b0b0;
-  --dark-border: #404040;
+  --dark-text-secondary: #cccccc;
+  --dark-text-tertiary: #999999;
+  --dark-border: #333333;
+  --dark-border-light: #444444;
+  --dark-shadow: rgba(0, 0, 0, 0.5);
+  --dark-shadow-light: rgba(0, 0, 0, 0.3);
+  
+  /* Dark mode accent colors */
+  --dark-orange: #FF7518;
+  --dark-orange-hover: #FF8533;
+  --dark-orange-pale: rgba(255, 117, 24, 0.1);
+  --dark-success: #4ade80;
+  --dark-error: #ef4444;
+  --dark-warning: #f59e0b;
 }
 
 body {
@@ -72,10 +85,16 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Global transition for dark mode */
+*, *::before, *::after {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 a {
@@ -150,10 +169,11 @@ button:hover {
   color: var(--etsy-gray);
 }
 
-/* Dark Mode Styles */
+/* Dark Mode Styles - Enhanced */
 .dark-mode {
   background: var(--dark-bg-primary);
   color: var(--dark-text-primary);
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .dark-mode body {
@@ -162,9 +182,33 @@ button:hover {
 }
 
 .dark-mode a {
-  color: var(--etsy-orange-light);
+  color: var(--dark-orange);
 }
 
 .dark-mode a:hover {
-  color: var(--etsy-orange);
+  color: var(--dark-orange-hover);
+}
+
+.dark-mode button {
+  transition: all 0.15s ease;
+}
+
+.dark-mode button:hover {
+  transform: translateY(-1px);
+}
+
+/* Dark mode typography */
+.dark-mode .etsy-heading-xl,
+.dark-mode .etsy-heading-lg,
+.dark-mode .etsy-heading-md {
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .etsy-body-lg,
+.dark-mode .etsy-body {
+  color: var(--dark-text-secondary);
+}
+
+.dark-mode .etsy-body-sm {
+  color: var(--dark-text-tertiary);
 }

@@ -322,3 +322,136 @@
     gap: 0;
   }
 }
+
+/* Dark Mode Styles */
+.dark-mode .profile-navbar-name {
+  color: var(--dark-text-secondary);
+}
+
+.dark-mode .profile-avatar {
+  background: linear-gradient(135deg, var(--dark-orange) 0%, var(--dark-orange-hover) 100%);
+  box-shadow: 0 2px 8px var(--dark-shadow-light);
+}
+
+.dark-mode .profile-avatar:hover {
+  box-shadow: 0 4px 12px var(--dark-shadow);
+}
+
+.dark-mode .profile-menu {
+  background: var(--dark-bg-secondary);
+  border-color: var(--dark-border);
+  box-shadow: 0 8px 24px var(--dark-shadow);
+}
+
+.dark-mode .profile-menu-header {
+  background: var(--dark-bg-tertiary);
+  border-bottom-color: var(--dark-border);
+}
+
+.dark-mode .profile-name {
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .profile-role {
+  color: var(--dark-text-tertiary);
+}
+
+.dark-mode .profile-menu-divider {
+  background: var(--dark-border);
+}
+
+.dark-mode .profile-menu-item {
+  background: var(--dark-bg-secondary);
+  color: var(--dark-text-secondary);
+  transition: all 0.15s ease;
+}
+
+.dark-mode .profile-menu-item:hover {
+  background: var(--dark-bg-tertiary);
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .profile-menu-item.logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--dark-error);
+}
+
+.dark-mode .profile-modal {
+  background: var(--dark-bg-secondary);
+  box-shadow: 0 20px 40px var(--dark-shadow);
+}
+
+.dark-mode .profile-modal-header h2 {
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .close-btn {
+  color: var(--dark-text-tertiary);
+}
+
+.dark-mode .close-btn:hover {
+  background: var(--dark-bg-tertiary);
+  color: var(--dark-text-secondary);
+}
+
+.dark-mode .form-group label {
+  color: var(--dark-text-secondary);
+}
+
+.dark-mode .form-group input,
+.dark-mode .form-group textarea {
+  background: var(--dark-bg-tertiary);
+  border-color: var(--dark-border);
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .form-group input::placeholder,
+.dark-mode .form-group textarea::placeholder {
+  color: var(--dark-text-tertiary);
+}
+
+.dark-mode .form-group input:focus,
+.dark-mode .form-group textarea:focus {
+  border-color: var(--dark-orange);
+  box-shadow: 0 0 0 3px var(--dark-orange-pale);
+}
+
+.dark-mode .form-group input:disabled {
+  background: var(--dark-bg-quaternary);
+  color: var(--dark-text-tertiary);
+}
+
+.dark-mode .form-actions {
+  border-top-color: var(--dark-border);
+}
+
+.dark-mode .cancel-btn {
+  background: var(--dark-bg-tertiary);
+  color: var(--dark-text-secondary);
+}
+
+.dark-mode .cancel-btn:hover {
+  background: var(--dark-bg-quaternary);
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .save-btn {
+  background: linear-gradient(135deg, var(--dark-orange) 0%, var(--dark-orange-hover) 100%);
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .save-btn:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(255, 117, 24, 0.4);
+}
+
+.dark-mode .error-message {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--dark-error);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.dark-mode .success-message {
+  background: rgba(74, 222, 128, 0.1);
+  color: var(--dark-success);
+  border-color: rgba(74, 222, 128, 0.3);
+}

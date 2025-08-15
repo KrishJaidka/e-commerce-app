@@ -4,6 +4,7 @@ import AuthModal from './SignupModal';
 import ProductGrid from './ProductGrid';
 import ProfileAvatar from './ProfileAvatar';
 import FavoritesModal from './FavoritesModal';
+import CartModal from './CartModal';
 import { useProducts } from '../hooks/useProducts';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
@@ -14,6 +15,7 @@ const HomePage = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [currentSection, setCurrentSection] = useState('home'); // 'home' or 'explore'
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
+  const [showCartModal, setShowCartModal] = useState(false);
   const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
   const { addToCart, getCartItemsCount } = useCart();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
@@ -206,7 +208,10 @@ const HomePage = () => {
                 <span className="qc-favorites-count">{favorites.size}</span>
               )}
             </button>
-            <button className="qc-nav-link qc-cart-btn">
+            <button 
+              className="qc-nav-link qc-cart-btn"
+              onClick={() => setShowCartModal(true)}
+            >
               <ShoppingCart size={20} />
               {getCartItemsCount() > 0 && (
                 <span className="qc-cart-count">{getCartItemsCount()}</span>
@@ -366,6 +371,11 @@ const HomePage = () => {
         onRemoveFavorite={toggleFavorite}
         onAddToCart={addToCart}
         products={products}
+      />
+
+      <CartModal
+        isOpen={showCartModal}
+        onClose={() => setShowCartModal(false)}
       />
     </div>
   );

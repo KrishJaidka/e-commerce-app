@@ -268,3 +268,92 @@
     flex: 1;
   }
 }
+
+/* Dark Mode Styles */
+.dark-mode .qc-favorites-modal {
+  background: var(--dark-bg-secondary);
+  box-shadow: 0 20px 40px var(--dark-shadow);
+}
+
+.dark-mode .qc-favorites-header {
+  background: linear-gradient(135deg, var(--dark-bg-tertiary) 0%, var(--dark-bg-secondary) 100%);
+  border-bottom-color: var(--dark-border);
+}
+
+.dark-mode .qc-favorites-header h2 {
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .qc-close-btn {
+  background: var(--dark-bg-tertiary);
+  color: var(--dark-text-secondary);
+  border: 1px solid var(--dark-border);
+}
+
+.dark-mode .qc-close-btn:hover {
+  background: var(--dark-bg-quaternary);
+  color: var(--dark-text-primary);
+  border-color: var(--dark-orange);
+}
+
+.dark-mode .qc-favorites-content {
+  background: var(--dark-bg-secondary);
+}
+
+.dark-mode .qc-favorites-empty {
+  color: var(--dark-text-secondary);
+}
+
+.dark-mode .qc-favorites-empty .qc-btn {
+  background: linear-gradient(45deg, var(--dark-orange), var(--dark-orange-hover));
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .qc-favorites-empty .qc-btn:hover {
+  box-shadow: 0 4px 12px rgba(255, 117, 24, 0.3);
+}
+
+.dark-mode .qc-favorite-item {
+  background: var(--dark-bg-tertiary);
+  border: 1px solid var(--dark-border);
+}
+
+.dark-mode .qc-favorite-item:hover {
+  border-color: var(--dark-orange);
+  box-shadow: 0 8px 25px var(--dark-shadow-light);
+}
+
+.dark-mode .qc-favorite-title {
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .qc-favorite-price {
+  color: var(--dark-orange);
+}
+
+.dark-mode .qc-favorite-category {
+  background: var(--dark-bg-quaternary);
+  color: var(--dark-text-tertiary);
+  border: 1px solid var(--dark-border);
+}
+
+.dark-mode .qc-favorite-actions .qc-btn-primary {
+  background: linear-gradient(45deg, var(--dark-orange), var(--dark-orange-hover));
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .qc-favorite-actions .qc-btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(255, 117, 24, 0.3);
+}
+
+.dark-mode .qc-favorite-actions .qc-btn-remove {
+  background: var(--dark-bg-quaternary);
+  color: var(--dark-text-secondary);
+  border: 1px solid var(--dark-border);
+}
+
+.dark-mode .qc-favorite-actions .qc-btn-remove:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--dark-error);
+  border-color: var(--dark-error);
+}

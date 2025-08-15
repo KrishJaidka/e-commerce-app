@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import SellerDashboard from './SellerDashboard';
+import { API_BASE_URL } from '../config/api';
 import './ProfileAvatar.css';
 
 const ProfileAvatar = ({ user, onLogout }) => {
@@ -179,8 +180,8 @@ const ProfileModal = ({ user, onClose }) => {
       
       // Call the profile update API - use the correct endpoint based on user role
       const endpoint = user.role === 'seller' 
-        ? `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/seller/${userId}`
-        : `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/user/${userId}`;
+        ? `${API_BASE_URL}/seller/${userId}`
+        : `${API_BASE_URL}/user/${userId}`;
         
       console.log('🔍 Profile Update: Endpoint:', endpoint);
       console.log('🔍 Profile Update: Form data:', formData);

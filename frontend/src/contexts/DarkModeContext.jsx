@@ -28,11 +28,29 @@ const DarkModeProvider = ({ children }) => {
   // Apply dark mode class to document and save preference
   useEffect(() => {
     const root = document.documentElement;
+    const body = document.body;
+    
     if (isDarkMode) {
       root.classList.add('dark-mode');
+      body.classList.add('dark-mode');
+      // Update meta theme-color for mobile browsers
+      let themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if (!themeColorMeta) {
+        themeColorMeta = document.createElement('meta');
+        themeColorMeta.name = 'theme-color';
+        document.head.appendChild(themeColorMeta);
+      }
+      themeColorMeta.content = '#0f0f0f'; // Dark mode theme color
     } else {
       root.classList.remove('dark-mode');
+      body.classList.remove('dark-mode');
+      // Update meta theme-color for mobile browsers
+      let themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeColorMeta) {
+        themeColorMeta.content = '#ffffff'; // Light mode theme color
+      }
     }
+    
     localStorage.setItem('quickcart_darkmode', JSON.stringify(isDarkMode));
   }, [isDarkMode]);
 

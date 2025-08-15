@@ -1,10 +1,10 @@
 // API Configuration
 const config = {
     development: {
-        API_BASE_URL: 'http://localhost:3000/api' // Use local backend for development
+        API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
     },
     production: {
-        API_BASE_URL: 'https://e-commerce-app-fpo8.onrender.com/api'
+        API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://e-commerce-app-fpo8.onrender.com/api'
     }
 };
 

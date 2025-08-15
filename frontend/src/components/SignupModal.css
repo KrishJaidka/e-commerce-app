@@ -249,3 +249,94 @@
     font-size: 1.3rem;
   }
 }
+
+/* Dark Mode Styles */
+.dark-mode .qc-modal-overlay {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.dark-mode .qc-modal {
+  background: var(--dark-bg-secondary);
+  box-shadow: 0 20px 40px var(--dark-shadow);
+}
+
+.dark-mode .qc-modal h2 {
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .qc-close-btn {
+  color: var(--dark-text-tertiary);
+}
+
+.dark-mode .qc-close-btn:hover {
+  color: var(--dark-text-primary);
+  background: var(--dark-bg-tertiary);
+}
+
+.dark-mode .qc-account-type-label {
+  color: var(--dark-text-secondary);
+}
+
+.dark-mode .qc-account-type-btn {
+  background: var(--dark-bg-tertiary);
+  color: var(--dark-text-secondary);
+  border-color: var(--dark-border);
+}
+
+.dark-mode .qc-account-type-btn:hover {
+  background: var(--dark-bg-quaternary);
+  color: var(--dark-text-primary);
+  border-color: var(--dark-orange);
+}
+
+.dark-mode .qc-account-type-btn.active {
+  background: linear-gradient(45deg, var(--dark-orange), var(--dark-orange-hover));
+  color: var(--dark-text-primary);
+  border-color: var(--dark-orange);
+}
+
+.dark-mode .qc-form-group label {
+  color: var(--dark-text-secondary);
+}
+
+.dark-mode .qc-form-input {
+  background: var(--dark-bg-tertiary);
+  border-color: var(--dark-border);
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .qc-form-input::placeholder {
+  color: var(--dark-text-tertiary);
+}
+
+.dark-mode .qc-form-input:focus {
+  border-color: var(--dark-orange);
+  box-shadow: 0 0 0 3px var(--dark-orange-pale);
+}
+
+.dark-mode .qc-error-message {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--dark-error);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.dark-mode .qc-modal-submit {
+  background: linear-gradient(45deg, var(--dark-orange), var(--dark-orange-hover));
+  color: var(--dark-text-primary);
+}
+
+.dark-mode .qc-modal-submit:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(255, 117, 24, 0.3);
+}
+
+.dark-mode .qc-modal-footer {
+  color: var(--dark-text-tertiary);
+}
+
+.dark-mode .qc-link-btn {
+  color: var(--dark-orange);
+}
+
+.dark-mode .qc-link-btn:hover {
+  color: var(--dark-orange-hover);
+}
